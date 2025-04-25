@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda Inmobiliaria Interactiva</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    .calendar { margin-top: 20px; }
+    .calendar-view { display: flex; gap: 10px; margin-bottom: 15px; }
+    .calendar-view div { padding: 10px 20px; background: #e0e0e0; border-radius: 10px; cursor: pointer; }
+    .icons-list { margin-top: 10px; }
+    .task-form, .task-list, .register-form { margin-top: 20px; }
+    .task-item { background: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; position: relative; display: flex; align-items: center; gap: 10px; }
+    .task-item span.icon { display: inline-block; padding: 5px 10px; border-radius: 5px; color: white; cursor: pointer; }
+    .task-item input[type="text"] { border: none; border-bottom: 1px solid #ccc; background: transparent; font-size: 1em; width: 100%; }
+    .delete-btn { position: absolute; top: 10px; right: 10px; background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+    label, input, select, button { display: block; margin-top: 10px; }
+    input, select { padding: 8px; width: 100%; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #007BFF; color: #fff; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .hidden { display: none; }
+    .calendar-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .calendar-table th, .calendar-table td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+    .saturday, .sunday { background-color: #eee8f5; }
+    .monday .motto { font-size: 0.8em; color: #007BFF; margin-top: 5px; display: block; }
+    .monthly-image { text-align: center; margin-top: 20px; }
+    .monthly-image img { max-width: 100%; border-radius: 10px; }
+    .monthly-image p { font-size: 1.2em; font-weight: bold; color: #444; margin-top: 10px; }
+    .logout-btn { margin-top: 20px; background: #dc3545; }
+  </style>
+</head>
+<body>
+  <h1 class="animate__animated animate__fadeIn">Agenda Inmobiliaria Interactiva</h1>
+
+  <div id="loginSection" class="animate__animated animate__fadeInUp">
+    <h2>Inicio de Sesión</h2>
+    <input type="text" id="username" placeholder="Usuario">
+    <input type="password" id="password" placeholder="Contraseña">
+    <button onclick="authorizeUser(event)">Ingresar</button>
+  </div>
+
+  <div id="mainApp" class="hidden">
+    <button class="logout-btn" onclick="logoutUser()">Cerrar Sesión</button>
+
+    <div class="monthly-image animate__animated animate__fadeInUp">
+      <img src="https://via.placeholder.com/800x200?text=Personas+de+%C3%89xito" alt="Personas de Éxito">
+      <p>Nuestro esfuerzo diario vale la pena por los objetivos logrados</p>
+    </div>
+
+    <div class="calendar animate__animated animate__fadeInUp">
+      <h2>Vista del Calendario</h2>
+      <div class="calendar-view">
+        <div onclick="alert('Vista Anual')">📅 Anual</div>
+        <div onclick="alert('Vista Mensual')">🗓️ Mensual</div>
+        <div onclick="alert('Vista Diaria')">📆 Diaria</div>
+      </div>
+      <div class="icons-list">
+        <p>Íconos: <span style="color:#2a9d8f">🧍</span> Nuevo Cliente | <span style="color:#f4a261">🤝</span> Cita Presencial | <span style="color:#e76f51">📞</span> Llamar | <span style="color:#2a9d8f">✅</span> Tarea Finalizada | <span style="color:#264653">✍️</span> Firma Notario | <span style="color:#e9c46a">💰</span> Comisión Cobrada</p>
+      </div>
+      <table class="calendar-table">
+        <thead>
+          <tr><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th><th class="saturday">Sábado</th><th class="sunday">Domingo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="monday">1 <span class="motto">"Empieza la semana con energía y metas claras"</span></td>
+            <td>2</td><td>3</td><td>4</td><td>5</td><td class="saturday">6</td><td class="sunday">7</td>
+          </tr>
+          <tr>
+            <td class="monday">8 <span class="motto">"Empieza la semana con energía y metas claras"</span></td>
+            <td>9</td><td>10</td><td>11</td><td>12</td><td class="saturday">13</td><td class="sunday">14</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="task-form">
+      <h3>Agregar Nueva Tarea</h3>
+      <input type="text" id="taskInput" placeholder="Descripción de la tarea">
+      <button onclick="addTask()">Agregar</button>
+    </div>
+
+    <div class="task-list">
+      <h3>Tareas</h3>
+    </div>
+
+  </div>
+
+  <script>
+    function authorizeUser(event) {
+      event.preventDefault(); // Prevenir el comportamiento predeterminado del formulario
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Usuario y contraseña predefinidos
+      if (username === 'admin' && password === 'admin123') {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        renderTasks();
+      } else {
+        alert('Usuario o contraseña incorrectos.');
+      }
+    }
+
+    function logoutUser() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById('taskInput');
+      const taskText = taskInput.value.trim();
+      if (!taskText) return;
+
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.push({ text: taskText, icon: '🔲', color: '#ff6347' });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+
+      taskInput.value = '';
+      renderTasks();
+    }
+
+    function markTaskAsCompleted(index) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      const task = tasks.splice(index, 1)[0];
+      task.icon = '✅';
+      task.color = '#2a9d8f';
+      tasks.push(task); // mover al final
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+
+      // Reproducir sonido de campana
+      const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+      audio.play();
+
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const taskList = document.querySelector('.task-list');
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      taskList.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const item = document.createElement('div');
+        item.className = 'task-item';
+        item.innerHTML = `
+          <span class="icon" style="background:${task.color}">${task.icon}</span>
+          <input type="text" value="${task.text}" readonly />
+          <button class="delete-btn" onclick="deleteTask(${index})">Eliminar</button>
+          ${task.icon !== '✅' ? `<button onclick="markTaskAsCompleted(${index})">Finalizar</button>` : ''}
+        `;
+        taskList.appendChild(item);
+      });
+    }
+
+    function deleteTask(index) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.splice(index, 1);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+  </script>
+</body>
+</html>
